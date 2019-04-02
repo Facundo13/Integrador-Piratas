@@ -3,12 +3,18 @@ import Text.Show.Functions -- Hace a las funciones instancia de Show
 type CondicionTesoro = Tesoro -> Bool
 
 data Tesoro = Tesoro {
-    nombre :: String,
+    nombreTesoro :: String,
     valor :: Int
 } deriving (Show, Eq)
 
-esValioso :: Tesoro -> Bool
+esValioso :: CondicionTesoro
 esValioso = (>100) . valor
+
+noEsValioso :: CondicionTesoro
+noEsValioso = not . esValioso
+
+coincideNombre :: String -> CondicionTesoro
+coincideNombre nombre tesoro = nombre == nombreTesoro tesoro
 
 data Pirata = Pirata {
     nombrePirata :: String,
@@ -34,33 +40,41 @@ valorTesoroMasValioso = maximum . valoresDeTesoros
 agregarTesoro :: Tesoro -> Pirata -> Pirata
 agregarTesoro tesoro pirata = pirata { botin = tesoro : botin pirata }
 
+perderTesorosSegun :: CondicionTesoro -> Pirata -> Pirata
+perderTesorosSegun condTesoro pirata = pirata {botin = filter condTesoro $ botin pirata}
+
+perderTesorosValiosos :: Pirata -> Pirata
+perderTesorosValiosos = perderTesorosSegun noEsValioso
+
+perderTesorosPorNombre :: String -> Pirata -> Pirata
+perderTesorosPorNombre nombre  = perderTesorosSegun (not . coincideNombre nombre) 
 
 -- type Saqueo = Tesoro -> Bool
 
-buscador :: String -> CondicionTesoro
-buscador palabra = elem palabra . words . nombre
+saqueoPorPalabraClave :: String -> CondicionTesoro
+saqueoPorPalabraClave palabra = elem palabra . words . nombreTesoro
 
-sinSaqueo :: CondicionTesoro
-sinSaqueo = const False
+saqueoBuenCorazon :: CondicionTesoro
+saqueoBuenCorazon = const False
 
-complejo :: [CondicionTesoro] -> CondicionTesoro
-complejo saqueos = flip any saqueos . flip ($)
+saqueoComplejo :: [CondicionTesoro] -> CondicionTesoro
+saqueoComplejo saqueos = flip any saqueos . flip ($)
 
 jack = Pirata {
     nombrePirata = "Jack Sparrow",
-    condicionSaqueo = complejo [esValioso, buscador "sombrero"],
+    condicionSaqueo = saqueoComplejo [esValioso, saqueoPorPalabraClave "sombrero"],
     botin = [Tesoro "brujula" 10000, Tesoro "frasco de arena" 0]
 }
 
 pulpo = Pirata {
     nombrePirata = "David Jones",
-    condicionSaqueo = sinSaqueo,
+    condicionSaqueo = saqueoBuenCorazon,
     botin = [Tesoro "cajita musical" 1]
 }
 
 anne = Pirata {
     nombrePirata = "Anne Bonny",
-    condicionSaqueo = sinSaqueo,
+    condicionSaqueo = saqueoBuenCorazon,
     botin = [Tesoro "doblones" 1000, Tesoro "frasco de arena" 1]
 }
 
@@ -144,6 +158,6 @@ zipWithRemanente f lista1 lista2 = listaNueva ++ drop (length listaNueva) lista2
 -------------------------------
 
 
-willYElizabethPiratas = map (convertir sinSaqueo) portRoyal
+willYElizabethPiratas = map (convertir saqueoBuenCorazon) portRoyal
 
 piratasDelCaribe = luchar holandesErrante . anclar islaDelRon . flip (++) willYElizabethPiratas . saquear portRoyal $ perlaNegra
