@@ -15,7 +15,7 @@ data Pirata = Pirata {
 type Saqueo = Tesoro -> Bool
 
 valioso :: Saqueo
-valioso = (>10) . valor
+valioso = (>100) . valor
 
 buscador :: String -> Saqueo
 buscador palabra = elem palabra . words . nombre
