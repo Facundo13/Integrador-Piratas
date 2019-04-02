@@ -34,6 +34,9 @@ data Pirata = Pirata {
 nombresDeTesoros :: Pirata -> [String]
 nombresDeTesoros pirata = map nombreTesoro $ botin pirata
 
+-- TESOROS PIRATAS
+
+-- La cantidad de tesoros de un pirata
 cantidadTesoros :: Pirata -> Int
 cantidadTesoros = length . botin
 
@@ -43,36 +46,47 @@ valoresDeTesoros pirata = map valor (botin pirata)
 valorTotalBotin :: Pirata -> Int
 valorTotalBotin = sum . valoresDeTesoros
 
+-- Si un pirata es afortunado
 esAfortunado :: Pirata -> Bool
 esAfortunado = (> 10000) . valorTotalBotin
 
+-- El valor del tesoro más valioso 
 valorTesoroMasValioso :: Pirata -> Int
 valorTesoroMasValioso = maximum . valoresDeTesoros
 
+-- Adquirir un nuevo tesoro
 agregarTesoro :: Tesoro -> Pirata -> Pirata
 agregarTesoro tesoro pirata = pirata { botin = tesoro : botin pirata }
 
 perderTesorosSegun :: CondicionTesoro -> Pirata -> Pirata
 perderTesorosSegun condTesoro pirata = pirata {botin = filter condTesoro $ botin pirata}
 
+-- Perder todos los tesoros valiosos
 perderTesorosValiosos :: Pirata -> Pirata
 perderTesorosValiosos = perderTesorosSegun noEsValioso
 
+-- Perder todos los tesoros con un nombre dado.
 perderTesorosPorNombre :: String -> Pirata -> Pirata
 perderTesorosPorNombre nombre  = perderTesorosSegun (not . seLlama nombre) 
 
 esParteDelBotinConOtroValor :: Pirata -> CondicionTesoro
 esParteDelBotinConOtroValor pirata tesoro = any (mismoNombreDistintoValor tesoro) (botin pirata)
 
+-- Dos piratas tienen un mismo tesoro, pero de valor diferente
 tienenMismoTesoroConOtroValor :: Pirata -> Pirata -> Bool
 tienenMismoTesoroConOtroValor unPirata otroPirata = any (esParteDelBotinConOtroValor otroPirata) (botin unPirata)
 
+-- TEMPORADA DE SAQUEOS
+
+-- Tesoros con objetos específicos
 saqueoPorPalabraClave :: String -> CondicionTesoro
 saqueoPorPalabraClave palabra = elem palabra . words . nombreTesoro
 
+-- Piratas con corazón 
 saqueoBuenCorazon :: CondicionTesoro
 saqueoBuenCorazon = const False
 
+-- Saqueos complejos 
 saqueoComplejo :: [CondicionTesoro] -> CondicionTesoro
 saqueoComplejo saqueos = flip any saqueos . flip ($)
 
