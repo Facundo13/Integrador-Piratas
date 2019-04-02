@@ -1,16 +1,18 @@
 import Text.Show.Functions -- Hace a las funciones instancia de Show
 
+type CondicionTesoro = Tesoro -> Bool
+
 data Tesoro = Tesoro {
     nombre :: String,
     valor :: Int
 } deriving (Show, Eq)
 
-esValioso :: Saqueo
+esValioso :: Tesoro -> Bool
 esValioso = (>100) . valor
 
 data Pirata = Pirata {
     nombrePirata :: String,
-    saqueo :: Saqueo,
+    condicionSaqueo :: CondicionTesoro,
     botin :: [Tesoro]
 } deriving (Show)
 
@@ -29,32 +31,36 @@ esAfortunado = (> 10000) . valorTotalBotin
 valorTesoroMasValioso :: Pirata -> Int
 valorTesoroMasValioso = maximum . valoresDeTesoros
 
-type Saqueo = Tesoro -> Bool
+agregarTesoro :: Tesoro -> Pirata -> Pirata
+agregarTesoro tesoro pirata = pirata { botin = tesoro : botin pirata }
 
-buscador :: String -> Saqueo
+
+-- type Saqueo = Tesoro -> Bool
+
+buscador :: String -> CondicionTesoro
 buscador palabra = elem palabra . words . nombre
 
-sinSaqueo :: Saqueo
+sinSaqueo :: CondicionTesoro
 sinSaqueo = const False
 
-complejo :: [Saqueo] -> Saqueo
+complejo :: [CondicionTesoro] -> CondicionTesoro
 complejo saqueos = flip any saqueos . flip ($)
 
 jack = Pirata {
     nombrePirata = "Jack Sparrow",
-    saqueo = complejo [esValioso, buscador "sombrero"],
+    condicionSaqueo = complejo [esValioso, buscador "sombrero"],
     botin = [Tesoro "brujula" 10000, Tesoro "frasco de arena" 0]
 }
 
 pulpo = Pirata {
     nombrePirata = "David Jones",
-    saqueo = sinSaqueo,
+    condicionSaqueo = sinSaqueo,
     botin = [Tesoro "cajita musical" 1]
 }
 
 anne = Pirata {
     nombrePirata = "Anne Bonny",
-    saqueo = sinSaqueo,
+    condicionSaqueo = sinSaqueo,
     botin = [Tesoro "doblones" 1000, Tesoro "frasco de arena" 1]
 }
 
@@ -68,9 +74,6 @@ type Isla = [Tesoro]
 anclar :: Isla -> Tripulacion -> Tripulacion
 anclar = zipWithRemanente agregarTesoro
 
-agregarTesoro :: Tesoro -> Pirata -> Pirata
-agregarTesoro tesoro pirata = pirata { botin = tesoro : botin pirata }
-
 type Ciudad = [Ciudadano]
 
 data Ciudadano = Ciudadano {
@@ -82,7 +85,7 @@ saquear :: Ciudad -> Tripulacion -> Tripulacion
 saquear = zipWithRemanente (flip robar)
 
 robar :: Pirata -> Ciudadano -> Pirata 
-robar pirata = agregarTesoros pirata . filter (saqueo pirata) . joyas
+robar pirata = agregarTesoros pirata . filter (condicionSaqueo pirata) . joyas
 
 agregarTesoros :: Pirata -> [Tesoro] -> Pirata
 agregarTesoros pirata tesoros = pirata { botin = botin pirata ++ tesoros }
@@ -109,10 +112,10 @@ portRoyal = [elizabeth, will]
 ----------------------------------------------
 
 
-convertir :: Saqueo -> Ciudadano -> Pirata
-convertir saqueo ciudadano = Pirata {
+convertir :: CondicionTesoro -> Ciudadano -> Pirata
+convertir condSaqueo ciudadano = Pirata {
     nombrePirata = nombreCiudadano ciudadano,
-    saqueo = saqueo,
+    condicionSaqueo = condSaqueo,
     botin = joyas ciudadano
 }
 
