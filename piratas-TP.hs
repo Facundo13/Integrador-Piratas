@@ -13,14 +13,26 @@ esValioso = (>100) . valor
 noEsValioso :: CondicionTesoro
 noEsValioso = not . esValioso
 
-coincideNombre :: String -> CondicionTesoro
-coincideNombre nombre tesoro = nombre == nombreTesoro tesoro
+seLlama :: String -> CondicionTesoro
+seLlama nombre tesoro = nombre == nombreTesoro tesoro
+
+mismoNombre :: Tesoro -> CondicionTesoro
+mismoNombre unTesoro otroTesoro = nombreTesoro unTesoro == nombreTesoro otroTesoro 
+
+mismoValor :: Tesoro -> CondicionTesoro
+mismoValor unTesoro otroTesoro = valor unTesoro == valor otroTesoro 
+
+mismoNombreDistintoValor :: Tesoro -> CondicionTesoro
+mismoNombreDistintoValor unTesoro otroTesoro = not (mismoValor unTesoro otroTesoro) && mismoNombre unTesoro otroTesoro
 
 data Pirata = Pirata {
     nombrePirata :: String,
     condicionSaqueo :: CondicionTesoro,
     botin :: [Tesoro]
 } deriving (Show)
+
+nombresDeTesoros :: Pirata -> [String]
+nombresDeTesoros pirata = map nombreTesoro $ botin pirata
 
 cantidadTesoros :: Pirata -> Int
 cantidadTesoros = length . botin
@@ -47,9 +59,13 @@ perderTesorosValiosos :: Pirata -> Pirata
 perderTesorosValiosos = perderTesorosSegun noEsValioso
 
 perderTesorosPorNombre :: String -> Pirata -> Pirata
-perderTesorosPorNombre nombre  = perderTesorosSegun (not . coincideNombre nombre) 
+perderTesorosPorNombre nombre  = perderTesorosSegun (not . seLlama nombre) 
 
--- type Saqueo = Tesoro -> Bool
+esParteDelBotinConOtroValor :: Pirata -> CondicionTesoro
+esParteDelBotinConOtroValor pirata tesoro = any (mismoNombreDistintoValor tesoro) (botin pirata)
+
+tienenMismoTesoroConOtroValor :: Pirata -> Pirata -> Bool
+tienenMismoTesoroConOtroValor unPirata otroPirata = any (esParteDelBotinConOtroValor otroPirata) (botin unPirata)
 
 saqueoPorPalabraClave :: String -> CondicionTesoro
 saqueoPorPalabraClave palabra = elem palabra . words . nombreTesoro
