@@ -5,6 +5,8 @@ data Tesoro = Tesoro {
     valor :: Int
 } deriving (Show, Eq)
 
+esValioso :: Saqueo
+esValioso = (>100) . valor
 
 data Pirata = Pirata {
     nombrePirata :: String,
@@ -12,10 +14,22 @@ data Pirata = Pirata {
     botin :: [Tesoro]
 } deriving (Show)
 
-type Saqueo = Tesoro -> Bool
+cantidadTesoros :: Pirata -> Int
+cantidadTesoros = length . botin
 
-valioso :: Saqueo
-valioso = (>100) . valor
+valoresDeTesoros :: Pirata -> [Int]
+valoresDeTesoros pirata = map valor (botin pirata)
+
+valorTotalBotin :: Pirata -> Int
+valorTotalBotin = sum . valoresDeTesoros
+
+esAfortunado :: Pirata -> Bool
+esAfortunado = (> 10000) . valorTotalBotin
+
+valorTesoroMasValioso :: Pirata -> Int
+valorTesoroMasValioso = maximum . valoresDeTesoros
+
+type Saqueo = Tesoro -> Bool
 
 buscador :: String -> Saqueo
 buscador palabra = elem palabra . words . nombre
@@ -28,7 +42,7 @@ complejo saqueos = flip any saqueos . flip ($)
 
 jack = Pirata {
     nombrePirata = "Jack Sparrow",
-    saqueo = complejo [valioso, buscador "sombrero"],
+    saqueo = complejo [esValioso, buscador "sombrero"],
     botin = [Tesoro "brujula" 10000, Tesoro "frasco de arena" 0]
 }
 
