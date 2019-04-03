@@ -104,15 +104,48 @@ pulpo = Pirata {
 
 anne = Pirata {
     nombrePirata = "Anne Bonny",
-    condicionSaqueo = saqueoBuenCorazon,
+    condicionSaqueo = saqueoPorPalabraClave "oro",
     botin = [Tesoro "doblones" 1000, Tesoro "frasco de arena" 1]
 }
 
+saquear :: Pirata -> CondicionTesoro -> Tesoro -> Pirata
+saquear pirata condTesoro tesoro
+    | condTesoro tesoro = agregarTesoro tesoro pirata
+    | otherwise         = pirata
+
+-- Navegando los siete mares
+
+type Tripulacion = [Pirata]
+
+data Barco = Barco {
+    nombreBarco :: String,
+    tripulacion :: Tripulacion,
+    modoSaqueo :: CondicionTesoro
+} deriving (Show)
+
+perlaNegra = Barco {
+    nombreBarco = "Perla Negra",
+    tripulacion = [jack, anne],
+    modoSaqueo = saqueoBuenCorazon
+}
+
+holandesErrante = Barco {
+    nombreBarco = "Holandes Errante",
+    tripulacion = [pulpo],
+    modoSaqueo = saqueoPorPalabraClave "cajita"
+}
+
+incorporarPirata :: Pirata -> Barco -> Barco
+incorporarPirata pirata barco = barco {tripulacion = pirata : tripulacion barco}
+
+abandonarBarco :: Pirata -> Barco -> Barco
+abandonarBarco pirata barco = barco {tripulacion = filter (not . validarIdentidad pirata) (tripulacion barco)}
+
+validarIdentidad :: Pirata -> Pirata -> Bool
+validarIdentidad unPirata otroPirata = nombrePirata unPirata == nombrePirata otroPirata
 
 ------------------------
 
-
-type Tripulacion = [Pirata]
 type Isla = [Tesoro]
 
 anclar :: Isla -> Tripulacion -> Tripulacion
@@ -125,8 +158,8 @@ data Ciudadano = Ciudadano {
     joyas :: [Tesoro]
 } deriving (Show, Eq)
 
-saquear :: Ciudad -> Tripulacion -> Tripulacion
-saquear = zipWithRemanente (flip robar)
+-- saquear :: Ciudad -> Tripulacion -> Tripulacion
+-- saquear = zipWithRemanente (flip robar)
 
 robar :: Pirata -> Ciudadano -> Pirata 
 robar pirata = agregarTesoros pirata . filter (condicionSaqueo pirata) . joyas
@@ -144,9 +177,9 @@ will = Ciudadano {
     joyas = [Tesoro "cuchillo" 5]
 }
 
-perlaNegra = [jack, anne]
+-- perlaNegra = [jack, anne]
 
-holandesErrante = [pulpo]
+-- holandesErrante = [pulpo]
 
 islaDelRon = repeat (Tesoro "Ron" 25)
 
@@ -190,4 +223,4 @@ zipWithRemanente f lista1 lista2 = listaNueva ++ drop (length listaNueva) lista2
 
 willYElizabethPiratas = map (convertir saqueoBuenCorazon) portRoyal
 
-piratasDelCaribe = luchar holandesErrante . anclar islaDelRon . flip (++) willYElizabethPiratas . saquear portRoyal $ perlaNegra
+-- piratasDelCaribe = luchar holandesErrante . anclar islaDelRon . flip (++) willYElizabethPiratas . saquear portRoyal $ perlaNegra
