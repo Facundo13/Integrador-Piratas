@@ -7,6 +7,18 @@ data Tesoro = Tesoro {
     valor :: Int
 } deriving (Show, Eq)
 
+--- TESOROS 
+
+brujulaQueApunta = Tesoro "Brujula que apunta" 10000
+frascoDeArenaConValorCero = Tesoro "Frasco de arena" 0
+cajitaMusical = Tesoro "Cajita musical" 1
+doblonesDeOro = Tesoro "Doblones de oro" 1000
+frascoDeArenaConValorUno = Tesoro "Frasco de arena" 1
+monedaDelCofreDelMuerto = Tesoro "Moneda del cofre del muerto" 100
+espadaDeHierro = Tesoro "Espada de hierro" 50
+cuchilloDelPadre = Tesoro "Cuchillo del padre" 5
+ron = Tesoro "Ron" 25
+
 esValioso :: CondicionTesoro
 esValioso = (>100) . valor
 
@@ -90,22 +102,34 @@ saqueoBuenCorazon = const False
 saqueoComplejo :: [CondicionTesoro] -> CondicionTesoro
 saqueoComplejo saqueos = flip any saqueos . flip ($)
 
-jack = Pirata {
+jackSparrow = Pirata {
     nombrePirata = "Jack Sparrow",
     condicionSaqueo = saqueoComplejo [esValioso, saqueoPorPalabraClave "sombrero"],
-    botin = [Tesoro "brujula" 10000, Tesoro "frasco de arena" 0]
+    botin = [brujulaQueApunta, frascoDeArenaConValorCero]
 }
 
-pulpo = Pirata {
+davidJones = Pirata {
     nombrePirata = "David Jones",
     condicionSaqueo = saqueoBuenCorazon,
-    botin = [Tesoro "cajita musical" 1]
+    botin = [cajitaMusical]
 }
 
-anne = Pirata {
+anneBonny = Pirata {
     nombrePirata = "Anne Bonny",
     condicionSaqueo = saqueoPorPalabraClave "oro",
-    botin = [Tesoro "doblones" 1000, Tesoro "frasco de arena" 1]
+    botin = [doblonesDeOro, frascoDeArenaConValorUno]
+}
+
+elizabethSwann = Pirata {
+    nombrePirata = "Elizabeth Swann",
+    condicionSaqueo = saqueoBuenCorazon,
+    botin = [monedaDelCofreDelMuerto, espadaDeHierro]
+}
+
+willTurner = Pirata {
+    nombrePirata = "Will Turner",
+    condicionSaqueo = saqueoBuenCorazon,
+    botin = [cuchilloDelPadre]
 }
 
 saquear :: Pirata -> CondicionTesoro -> Tesoro -> Pirata
@@ -125,13 +149,13 @@ data Barco = Barco {
 
 perlaNegra = Barco {
     nombreBarco = "Perla Negra",
-    tripulacion = [jack, anne],
+    tripulacion = [jackSparrow, anneBonny],
     modoSaqueo = saqueoBuenCorazon
 }
 
 holandesErrante = Barco {
     nombreBarco = "Holandes Errante",
-    tripulacion = [pulpo],
+    tripulacion = [davidJones],
     modoSaqueo = saqueoPorPalabraClave "cajita"
 }
 
@@ -148,8 +172,11 @@ validarIdentidad unPirata otroPirata = nombrePirata unPirata == nombrePirata otr
 
 type Isla = [Tesoro]
 
-anclar :: Isla -> Tripulacion -> Tripulacion
-anclar = zipWithRemanente agregarTesoro
+islaDelRon = repeat ron
+islaTortuga = repeat frascoDeArenaConValorUno
+
+anclarEnUnaIsla :: Isla -> Barco -> Barco
+anclarEnUnaIsla isla barco = barco {tripulacion = zipWith agregarTesoro isla (tripulacion barco)}
 
 type Ciudad = [Ciudadano]
 
@@ -167,23 +194,17 @@ robar pirata = agregarTesoros pirata . filter (condicionSaqueo pirata) . joyas
 agregarTesoros :: Pirata -> [Tesoro] -> Pirata
 agregarTesoros pirata tesoros = pirata { botin = botin pirata ++ tesoros }
 
-elizabeth = Ciudadano {
-    nombreCiudadano = "Elizabeth Swann",
-    joyas = [Tesoro "moneda del cofre muerto" 100]
-}
+-- elizabeth = Ciudadano {
+--    nombreCiudadano = "Elizabeth Swann",
+--    joyas = [Tesoro "moneda del cofre muerto" 100]
+--}
 
-will = Ciudadano {
-    nombreCiudadano = "Will Turner",
-    joyas = [Tesoro "cuchillo" 5]
-}
+-- will = Ciudadano {
+--    nombreCiudadano = "Will Turner",
+--    joyas = [Tesoro "cuchillo" 5]
+-- }
 
--- perlaNegra = [jack, anne]
-
--- holandesErrante = [pulpo]
-
-islaDelRon = repeat (Tesoro "Ron" 25)
-
-portRoyal = [elizabeth, will]
+-- portRoyal = [elizabeth, will]
 
 
 ----------------------------------------------
@@ -221,6 +242,6 @@ zipWithRemanente f lista1 lista2 = listaNueva ++ drop (length listaNueva) lista2
 -------------------------------
 
 
-willYElizabethPiratas = map (convertir saqueoBuenCorazon) portRoyal
+-- willYElizabethPiratas = map (convertir saqueoBuenCorazon) portRoyal
 
 -- piratasDelCaribe = luchar holandesErrante . anclar islaDelRon . flip (++) willYElizabethPiratas . saquear portRoyal $ perlaNegra
