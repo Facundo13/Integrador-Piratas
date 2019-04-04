@@ -39,7 +39,7 @@ mismoValor :: Tesoro -> CondicionTesoro
 mismoValor unTesoro otroTesoro = valor unTesoro == valor otroTesoro 
 
 mismoNombreDistintoValor :: Tesoro -> CondicionTesoro
-mismoNombreDistintoValor unTesoro otroTesoro = not (mismoValor unTesoro otroTesoro) && mismoNombre unTesoro otroTesoro
+mismoNombreDistintoValor unTesoro otroTesoro = (not . mismoValor unTesoro) otroTesoro && mismoNombre unTesoro otroTesoro
 
 data Pirata = Pirata {
     nombrePirata :: String,
@@ -57,7 +57,7 @@ cantidadTesoros :: Pirata -> Int
 cantidadTesoros = length . botin
 
 valoresDeTesoros :: Pirata -> [Int]
-valoresDeTesoros pirata = map valor (botin pirata)
+valoresDeTesoros pirata = map valor $ botin pirata
 
 valorTotalBotin :: Pirata -> Int
 valorTotalBotin = sum . valoresDeTesoros
@@ -86,11 +86,11 @@ perderTesorosPorNombre :: String -> Pirata -> Pirata
 perderTesorosPorNombre nombre  = perderTesorosSegun (not . seLlama nombre) 
 
 esParteDelBotinConOtroValor :: Pirata -> CondicionTesoro
-esParteDelBotinConOtroValor pirata tesoro = any (mismoNombreDistintoValor tesoro) (botin pirata)
+esParteDelBotinConOtroValor pirata tesoro = any (mismoNombreDistintoValor tesoro) $ botin pirata
 
 -- Dos piratas tienen un mismo tesoro, pero de valor diferente
 tienenMismoTesoroConOtroValor :: Pirata -> Pirata -> Bool
-tienenMismoTesoroConOtroValor unPirata otroPirata = any (esParteDelBotinConOtroValor otroPirata) (botin unPirata)
+tienenMismoTesoroConOtroValor unPirata otroPirata = any (esParteDelBotinConOtroValor otroPirata) $ botin unPirata
 
 -- TEMPORADA DE SAQUEOS
 
@@ -167,7 +167,7 @@ incorporarPirata :: Pirata -> Barco -> Barco
 incorporarPirata pirata barco = barco {tripulacion = pirata : tripulacion barco}
 
 abandonarBarco :: Pirata -> Barco -> Barco
-abandonarBarco pirata barco = barco {tripulacion = filter (not . validarIdentidad pirata) (tripulacion barco)}
+abandonarBarco pirata barco = barco {tripulacion = filter (not . validarIdentidad pirata) $ tripulacion barco}
 
 validarIdentidad :: Pirata -> Pirata -> Bool
 validarIdentidad unPirata otroPirata = nombrePirata unPirata == nombrePirata otroPirata
@@ -180,7 +180,7 @@ islaDelRon = repeat ron
 islaTortuga = repeat frascoDeArenaConValorUno
 
 anclarEnUnaIsla :: Barco -> Isla -> Barco
-anclarEnUnaIsla barco isla = barco {tripulacion = zipWith agregarTesoro isla (tripulacion barco)}
+anclarEnUnaIsla barco isla = barco {tripulacion = zipWith agregarTesoro isla $ tripulacion barco}
 
 type Ciudad = [Tesoro]
 
