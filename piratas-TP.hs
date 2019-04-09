@@ -39,100 +39,115 @@ mismoValor :: Tesoro -> CondicionTesoro
 mismoValor unTesoro otroTesoro = valor unTesoro == valor otroTesoro 
 
 mismoNombreDistintoValor :: Tesoro -> CondicionTesoro
-mismoNombreDistintoValor unTesoro otroTesoro = (not . mismoValor unTesoro) otroTesoro && mismoNombre unTesoro otroTesoro
+mismoNombreDistintoValor unTesoro otroTesoro = not (mismoValor unTesoro otroTesoro) && mismoNombre unTesoro otroTesoro
 
 data Pirata = Pirata {
     nombrePirata :: String,
-    condicionSaqueo :: CondicionTesoro,
+--    condicionSaqueo :: CondicionTesoro,
     botin :: [Tesoro]
 } deriving (Show)
 
 nombresDeTesoros :: Pirata -> [String]
-nombresDeTesoros pirata = map nombreTesoro $ botin pirata
+nombresDeTesoros pirata = map nombreTesoro (botin pirata)
 
 -- TESOROS PIRATAS
 
 -- La cantidad de tesoros de un pirata
 cantidadTesoros :: Pirata -> Int
-cantidadTesoros = length . botin
+cantidadTesoros pirata = length (botin pirata)
 
 valoresDeTesoros :: Pirata -> [Int]
-valoresDeTesoros pirata = map valor $ botin pirata
+valoresDeTesoros pirata = map valor (botin pirata)
 
 valorTotalBotin :: Pirata -> Int
-valorTotalBotin = sum . valoresDeTesoros
+valorTotalBotin pirata = sum (valoresDeTesoros pirata)
 
 -- Si un pirata es afortunado
 esAfortunado :: Pirata -> Bool
-esAfortunado = (> 10000) . valorTotalBotin
+esAfortunado pirata = valorTotalBotin pirata > 10000
 
 -- El valor del tesoro más valioso 
 valorTesoroMasValioso :: Pirata -> Int
-valorTesoroMasValioso = maximum . valoresDeTesoros
+valorTesoroMasValioso pirata = maximum (valoresDeTesoros pirata)
 
 -- Adquirir un nuevo tesoro
 agregarTesoro :: Tesoro -> Pirata -> Pirata
 agregarTesoro tesoro pirata = pirata { botin = tesoro : botin pirata }
 
 perderTesorosSegun :: CondicionTesoro -> Pirata -> Pirata
-perderTesorosSegun condTesoro pirata = pirata {botin = filter condTesoro $ botin pirata}
+perderTesorosSegun condTesoro pirata = pirata {botin = filter condTesoro (botin pirata)}
 
 -- Perder todos los tesoros valiosos
 perderTesorosValiosos :: Pirata -> Pirata
-perderTesorosValiosos = perderTesorosSegun noEsValioso
+perderTesorosValiosos pirata = perderTesorosSegun noEsValioso pirata
 
 -- Perder todos los tesoros con un nombre dado.
 perderTesorosPorNombre :: String -> Pirata -> Pirata
-perderTesorosPorNombre nombre  = perderTesorosSegun (not . seLlama nombre) 
+perderTesorosPorNombre nombre  pirata = perderTesorosSegun (not . seLlama nombre)  pirata
 
-esParteDelBotinConOtroValor :: Pirata -> CondicionTesoro
-esParteDelBotinConOtroValor pirata tesoro = any (mismoNombreDistintoValor tesoro) $ botin pirata
+--esParteDelBotinConOtroValor :: Pirata -> CondicionTesoro
+--esParteDelBotinConOtroValor pirata tesoro = any (mismoNombreDistintoValor tesoro) (botin pirata)
 
 -- Dos piratas tienen un mismo tesoro, pero de valor diferente
 tienenMismoTesoroConOtroValor :: Pirata -> Pirata -> Bool
-tienenMismoTesoroConOtroValor unPirata otroPirata = any (esParteDelBotinConOtroValor otroPirata) $ botin unPirata
+--tienenMismoTesoroConOtroValor unPirata otroPirata = any (esParteDelBotinConOtroValor otroPirata) $ botin unPirata
+tienenMismoTesoroConOtroValor unPirata otroPirata = hayMismoTesoroConOtroValor (botin unPirata) (botin otroPirata)
+
+hayMismoTesoroConOtroValor :: [Tesoro] -> [Tesoro] -> Bool
+hayMismoTesoroConOtroValor unBotin otroBotin = any (esParteDelBotin unBotin) otroBotin
+
+esParteDelBotin :: [Tesoro] -> Tesoro -> Bool
+esParteDelBotin botin tesoro = any (mismoNombreDistintoValor tesoro) botin
+
 
 -- TEMPORADA DE SAQUEOS
 
 -- Tesoros con objetos específicos
 saqueoPorPalabraClave :: String -> CondicionTesoro
-saqueoPorPalabraClave palabra = elem palabra . words . nombreTesoro
+--saqueoPorPalabraClave palabra = elem palabra . words . nombreTesoro
+--saqueoPorPalabraClave palabra = (palabra ==) . nombreTesoro
+saqueoPorPalabraClave palabra tesoro = nombreTesoro tesoro == palabra
 
 -- Piratas con corazón 
 saqueoBuenCorazon :: CondicionTesoro
-saqueoBuenCorazon = const False
+--saqueoBuenCorazon = const False
+saqueoBuenCorazon _ = False
 
 -- Saqueos complejos 
 saqueoComplejo :: [CondicionTesoro] -> CondicionTesoro
-saqueoComplejo saqueos = flip any saqueos . flip ($)
+--saqueoComplejo saqueos = flip any saqueos . flip ($)
+saqueoComplejo saqueos tesoro = any ( verificaTesoro tesoro) saqueos 
+
+verificaTesoro:: Tesoro -> CondicionTesoro -> Bool
+verificaTesoro tesoro saqueo = saqueo tesoro
 
 jackSparrow = Pirata {
     nombrePirata = "Jack Sparrow",
-    condicionSaqueo = saqueoComplejo [esValioso, saqueoPorPalabraClave "sombrero"],
+--    condicionSaqueo = saqueoComplejo [esValioso, saqueoPorPalabraClave "sombrero"],
     botin = [brujulaQueApunta, frascoDeArenaConValorCero]
 }
 
 davidJones = Pirata {
     nombrePirata = "David Jones",
-    condicionSaqueo = saqueoBuenCorazon,
+--    condicionSaqueo = saqueoBuenCorazon,
     botin = [cajitaMusical]
 }
 
 anneBonny = Pirata {
     nombrePirata = "Anne Bonny",
-    condicionSaqueo = saqueoPorPalabraClave "oro",
+--    condicionSaqueo = saqueoPorPalabraClave "oro",
     botin = [doblonesDeOro, frascoDeArenaConValorUno]
 }
 
 elizabethSwann = Pirata {
     nombrePirata = "Elizabeth Swann",
-    condicionSaqueo = saqueoBuenCorazon,
+--    condicionSaqueo = saqueoBuenCorazon,
     botin = [monedaDelCofreDelMuerto, espadaDeHierro]
 }
 
 willTurner = Pirata {
     nombrePirata = "Will Turner",
-    condicionSaqueo = saqueoBuenCorazon,
+--    condicionSaqueo = saqueoBuenCorazon,
     botin = [cuchilloDelPadre]
 }
 
@@ -167,20 +182,24 @@ incorporarPirata :: Pirata -> Barco -> Barco
 incorporarPirata pirata barco = barco {tripulacion = pirata : tripulacion barco}
 
 abandonarBarco :: Pirata -> Barco -> Barco
-abandonarBarco pirata barco = barco {tripulacion = filter (not . validarIdentidad pirata) $ tripulacion barco}
+abandonarBarco pirata barco = barco {tripulacion = filter (not . validarIdentidad pirata) (tripulacion barco)}
 
 validarIdentidad :: Pirata -> Pirata -> Bool
 validarIdentidad unPirata otroPirata = nombrePirata unPirata == nombrePirata otroPirata
 
 ------------------------
 
-type Isla = [Tesoro]
+--type Isla = [Tesoro]
+type Isla = Tesoro
 
-islaDelRon = repeat ron
-islaTortuga = repeat frascoDeArenaConValorUno
+--islaDelRon = repeat ron
+islaDelRon = ron
+--islaTortuga = repeat frascoDeArenaConValorUno
+islaTortuga = frascoDeArenaConValorUno
 
 anclarEnUnaIsla :: Barco -> Isla -> Barco
-anclarEnUnaIsla barco isla = barco {tripulacion = zipWith agregarTesoro isla $ tripulacion barco}
+--anclarEnUnaIsla barco isla = barco {tripulacion = zipWith agregarTesoro isla $ tripulacion barco}
+anclarEnUnaIsla barco isla = barco {tripulacion = map (agregarTesoro isla) (tripulacion barco)}
 
 type Ciudad = [Tesoro]
 
@@ -195,35 +214,35 @@ atacarCiudad barco ciudad = barco {tripulacion = zipWith (saquear (modoSaqueo ba
 -- saquear :: Ciudad -> Tripulacion -> Tripulacion
 -- saquear = zipWithRemanente (flip robar)
 
-data Ciudadano = Ciudadano {
-    nombreCiudadano :: String,
-    joyas :: [Tesoro]
-} deriving (Show, Eq)
+--data Ciudadano = Ciudadano {
+--    nombreCiudadano :: String,
+--    joyas :: [Tesoro]
+--} deriving (Show, Eq)
 
-robar :: Pirata -> Ciudadano -> Pirata 
-robar pirata = agregarTesoros pirata . filter (condicionSaqueo pirata) . joyas
+--robar :: Pirata -> Ciudadano -> Pirata 
+--robar pirata = agregarTesoros pirata . filter (condicionSaqueo pirata) . joyas
 
-agregarTesoros :: Pirata -> [Tesoro] -> Pirata
-agregarTesoros pirata tesoros = pirata { botin = botin pirata ++ tesoros }
+--agregarTesoros :: Pirata -> [Tesoro] -> Pirata
+--agregarTesoros pirata tesoros = pirata { botin = botin pirata ++ tesoros }
 
 
--- elizabeth = Ciudadano {
+--elizabeth = Ciudadano {
 --    nombreCiudadano = "Elizabeth Swann",
 --    joyas = [Tesoro "moneda del cofre muerto" 100]
 --}
 
--- will = Ciudadano {
---    nombreCiudadano = "Will Turner",
---    joyas = [Tesoro "cuchillo" 5]
--- }
+--will = Ciudadano {
+--   nombreCiudadano = "Will Turner",
+--   joyas = [Tesoro "cuchillo" 5]
+--}
 
--- portRoyal = [elizabeth, will]
+--portRoyal = [elizabeth, will]
 
 
 
 ----------------------------------------------
 
-
+{-
 convertir :: CondicionTesoro -> Ciudadano -> Pirata
 convertir condSaqueo ciudadano = Pirata {
     nombrePirata = nombreCiudadano ciudadano,
@@ -259,3 +278,5 @@ zipWithRemanente f lista1 lista2 = listaNueva ++ drop (length listaNueva) lista2
 -- willYElizabethPiratas = map (convertir saqueoBuenCorazon) portRoyal
 
 -- piratasDelCaribe = luchar holandesErrante . anclar islaDelRon . flip (++) willYElizabethPiratas . saquear portRoyal $ perlaNegra
+
+-}
