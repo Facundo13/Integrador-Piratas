@@ -129,25 +129,21 @@ jackSparrow = Pirata {
 
 davidJones = Pirata {
     nombrePirata = "David Jones",
---    condicionSaqueo = saqueoBuenCorazon,
     botin = [cajitaMusical]
 }
 
 anneBonny = Pirata {
     nombrePirata = "Anne Bonny",
---    condicionSaqueo = saqueoPorPalabraClave "oro",
     botin = [doblonesDeOro, frascoDeArenaConValorUno]
 }
 
 elizabethSwann = Pirata {
     nombrePirata = "Elizabeth Swann",
---    condicionSaqueo = saqueoBuenCorazon,
     botin = [monedaDelCofreDelMuerto, espadaDeHierro]
 }
 
 willTurner = Pirata {
     nombrePirata = "Will Turner",
---    condicionSaqueo = saqueoBuenCorazon,
     botin = [cuchilloDelPadre]
 }
 
@@ -189,17 +185,13 @@ validarIdentidad unPirata otroPirata = nombrePirata unPirata == nombrePirata otr
 
 ------------------------
 
---type Isla = [Tesoro]
 type Isla = Tesoro
 
---islaDelRon = repeat ron
 islaDelRon = ron
---islaTortuga = repeat frascoDeArenaConValorUno
 islaTortuga = frascoDeArenaConValorUno
 
-anclarEnUnaIsla :: Barco -> Isla -> Barco
---anclarEnUnaIsla barco isla = barco {tripulacion = zipWith agregarTesoro isla $ tripulacion barco}
-anclarEnUnaIsla barco isla = barco {tripulacion = map (agregarTesoro isla) (tripulacion barco)}
+anclarEnUnaIsla ::  Isla -> Barco -> Barco
+anclarEnUnaIsla  isla barco = barco {tripulacion = map (agregarTesoro isla) (tripulacion barco)}
 
 type Ciudad = [Tesoro]
 
@@ -207,76 +199,13 @@ portRoyal = [monedaDePlata, mapaDeBarbarroja, catalejoMagico]
 
 carmenDePatagones = [sombreroDeAvestruz]
 
-atacarCiudad :: Barco -> Ciudad -> Barco
-atacarCiudad barco ciudad = barco {tripulacion = zipWith (saquear (modoSaqueo barco)) (tripulacion barco) ciudad}
+atacarCiudad ::  Ciudad -> Barco -> Barco
+atacarCiudad  ciudad barco = barco {tripulacion = zipWith (saquear (modoSaqueo barco)) (tripulacion barco) ciudad}
+
+-- Abordar barco 
+-- No hace nada interesante, solo para probar
+
+abordarBarco :: Barco -> Barco -> Barco
+abordarBarco atacante defensor = atacante
 
 
--- saquear :: Ciudad -> Tripulacion -> Tripulacion
--- saquear = zipWithRemanente (flip robar)
-
---data Ciudadano = Ciudadano {
---    nombreCiudadano :: String,
---    joyas :: [Tesoro]
---} deriving (Show, Eq)
-
---robar :: Pirata -> Ciudadano -> Pirata 
---robar pirata = agregarTesoros pirata . filter (condicionSaqueo pirata) . joyas
-
---agregarTesoros :: Pirata -> [Tesoro] -> Pirata
---agregarTesoros pirata tesoros = pirata { botin = botin pirata ++ tesoros }
-
-
---elizabeth = Ciudadano {
---    nombreCiudadano = "Elizabeth Swann",
---    joyas = [Tesoro "moneda del cofre muerto" 100]
---}
-
---will = Ciudadano {
---   nombreCiudadano = "Will Turner",
---   joyas = [Tesoro "cuchillo" 5]
---}
-
---portRoyal = [elizabeth, will]
-
-
-
-----------------------------------------------
-
-{-
-convertir :: CondicionTesoro -> Ciudadano -> Pirata
-convertir condSaqueo ciudadano = Pirata {
-    nombrePirata = nombreCiudadano ciudadano,
-    condicionSaqueo = condSaqueo,
-    botin = joyas ciudadano
-}
-
-pelear :: Pirata -> Pirata -> Pirata
-pelear pirataMalo pirataBueno
-    |nivelDeSaqueo pirataMalo > nivelDeSaqueo pirataBueno = vaciarBotin pirataBueno
-    |otherwise = pirataBueno
-
-nivelDeSaqueo :: Pirata -> Int
-nivelDeSaqueo = sum . map valor . botin
-
-vaciarBotin :: Pirata -> Pirata
-vaciarBotin pirata = pirata { botin = [] }
-
-luchar :: Tripulacion -> Tripulacion -> Tripulacion
-luchar piratasMalos = zipWithRemanente pelear piratasMalos . filter (not . sinBotin)
-
-sinBotin :: Pirata -> Bool
-sinBotin = null . botin
-
-
-
-zipWithRemanente f lista1 lista2 = listaNueva ++ drop (length listaNueva) lista2
-    where listaNueva = zipWith f lista1 lista2
-
--------------------------------
-
-
--- willYElizabethPiratas = map (convertir saqueoBuenCorazon) portRoyal
-
--- piratasDelCaribe = luchar holandesErrante . anclar islaDelRon . flip (++) willYElizabethPiratas . saquear portRoyal $ perlaNegra
-
--}
