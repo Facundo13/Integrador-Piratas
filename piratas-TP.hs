@@ -2,7 +2,8 @@ import Text.Show.Functions -- Hace a las funciones instancia de Show
 
 type FormaDeSaqueo = Tesoro -> Bool
 
-{-
+--Para la primera parte
+{- 
 data Tesoro = Tesoro {
     nombre :: String,
     valor :: Int
@@ -45,7 +46,7 @@ mismoNombreDistintoValor unTesoro otroTesoro = distintoValor unTesoro otroTesoro
 data Pirata = Pirata {
     apodo :: String,
     botin :: [Tesoro]
-} deriving Show
+} deriving (Show, Eq)
 
 --nombresDeTesoros :: Pirata -> [String]
 --nombresDeTesoros pirata = map nombre (botin pirata)
@@ -170,6 +171,8 @@ holandesErrante = Barco {
     tripulacion = [davidJones],
     formaSaqueo = saqueoEspecifico "cajita"
 }
+barcos = [holandesErrante,perlaNegra]
+
 incorporarPirata :: Pirata -> Barco -> Barco
 incorporarPirata pirata barco = barco {tripulacion = pirata : tripulacion barco}
 
@@ -202,7 +205,7 @@ atacarCiudad ciudad barco = barco {tripulacion = zipWith (saquear (formaSaqueo b
 -- No hace nada interesante, solo para probar
 
 abordarBarco :: Barco -> Barco -> Barco
-abordarBarco atacante defensor = atacante
+abordarBarco defensor atacante  = atacante
 
 -----------------------------------------------------
 -- SEGUNDA PARTE
@@ -237,6 +240,7 @@ saqueoFobico :: String -> FormaDeSaqueo
 saqueoFobico palabra = not.saqueoEspecifico palabra
 
 --3
+--Opcion 1
 
 uade :: Barco -> Barco
 uade barco = barco {formaSaqueo = not.formaSaqueo barco}
@@ -247,6 +251,18 @@ uba barco = barco {formaSaqueo = saqueoComplejo [saqueoBuitre, saqueoValioso, fo
 uai :: Barco -> Barco
 uai = id 
 
+--Opcion 2
+irALaUniversidad universidad barco = barco{formaSaqueo = universidad (formaSaqueo barco)}
+
+uade2 :: FormaDeSaqueo -> FormaDeSaqueo
+uade2  =  (not.)
+
+uba2 :: FormaDeSaqueo -> FormaDeSaqueo
+uba2 forma = saqueoComplejo [saqueoBuitre, saqueoValioso, forma]
+
+uai2 :: FormaDeSaqueo -> FormaDeSaqueo
+uai2 = id 
+
 --4
 --a
 type Situacion = Barco -> Barco
@@ -254,10 +270,11 @@ type Situacion = Barco -> Barco
 peliculearBarco :: [Situacion] -> Barco -> Barco
 peliculearBarco situaciones barco = foldr ($) barco situaciones
 
---b
-instance Eq Pirata where 
-    unPirata == otroPirata = apodo unPirata == apodo otroPirata 
+piratasDelCaribe = [incorporarPirata willTurner,atacarCiudad portRoyal, abordarBarco barcoInfinito, anclarEnUnaIsla islaDelRon]
+piratasDelCaribeUniversity = [uade, uba, uai]
+piratasDelCaribeUniversity2 = [irALaUniversidad uade2, irALaUniversidad uba2, irALaUniversidad uai2]
 
+--b
 instance Eq Barco where 
     unBarco == otroBarco = descripcion unBarco == descripcion otroBarco && mismosElementos (tripulacion unBarco)  (tripulacion otroBarco) 
 
@@ -289,4 +306,3 @@ barcoInfinito = Barco "Infinito" (map  inventarPirata  [1..]) saqueoValioso
 
 inventarPirata::Float -> Pirata
 inventarPirata valor = Pirata "Pirata" [Tesoro "Sombrero" valor]
-
