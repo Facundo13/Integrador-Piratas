@@ -4,7 +4,9 @@ _**¡Un grupo de piratas ha tomado la facultad! Y nos piden hacer un programa fu
 Tesoros piratas
 Lo más importante para un pirata son los tesoros. Ellos saquean ciudades y tienen aventuras en busca de tesoros cada vez más valiosos.
 Cada pirata tiene un apodo y un botín (conjunto de tesoros que ya posee). De los tesoros solo les importa su nombre y valor.**_
- 
+
+![piratas](piratas1.jpg)
+
 ### Piratas y tesoros
 Se quiere saber
 1. La cantidad de tesoros de un pirata
@@ -68,6 +70,8 @@ Por ejemplo, algunos casos de prueba pueden ser:
 ## Segunda parte: Piratas de todas las épocas
 
 *¡Los piratas han modernizado sus técnicas y van por más!*
+
+![piratas](piratas2.jpg)
 
 ### Tesoros para todos 
 Además de los tesoros mencionados, aquellos que ya tienen un valor y un nombre establecido, aparecen otros elementos que son codiciados por los piratas y forman parte de su botín:
