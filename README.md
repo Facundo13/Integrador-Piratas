@@ -2,12 +2,14 @@
 
 _**¡Un grupo de piratas ha tomado la facultad! Y nos piden hacer un programa funcional para planear sus ataques y saqueos.
 Tesoros piratas
-Lo más importante para un pirata son los tesoros. Ellos saquean ciudades y tienen aventuras en busca de tesoros cada vez más valiosos.
-Cada pirata tiene un apodo y un botín (conjunto de tesoros que ya posee). De los tesoros solo les importa su nombre y valor.**_
+Lo más importante para un pirata son los tesoros. Ellos saquean ciudades y tienen aventuras en busca de tesoros cada vez más valiosos.**_
 
 ![piratas](piratas2.jpg)
 
 ### Piratas y tesoros
+
+Cada pirata tiene un apodo y un botín (conjunto de tesoros que ya posee). De los tesoros solo les importa su nombre y valor.
+
 Se quiere saber
 1. La cantidad de tesoros de un pirata
 2. Si un pirata es afortunado, lo cual es cierto si el valor total de su botín supera los 10000.
